@@ -3,44 +3,31 @@ package main;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.spec.ECFieldFp;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EllipticCurve;
 
 import org.bouncycastle.jcajce.provider.asymmetric.EC;
+import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
+import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.ECPointUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
-
-import java.security.spec.ECParameterSpec;
-import java.security.spec.EllipticCurve;
-import java.security.spec.EllipticCurve;
-import java.security.spec.ECFieldFp;
-import java.security.spec.ECPoint;
-import java.security.spec.ECParameterSpec;
-
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-
 import org.bouncycastle.jce.spec.*;
 
 public class ExplicitPait {
@@ -48,26 +35,21 @@ public class ExplicitPait {
 	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException, IOException, InvalidKeySpecException {
 		
 		Security.addProvider(new BouncyCastleProvider());
-		File file = new File(new String("E:\\PirateFileFlusher.jar"));
+		File file = new File(new String("/home/francis/JarFiles/PirateFileFlusher_ver_0.6.tar.gz"));
+		TOBase64 base64 = new TOBase64();
+		ECNamedCurveParameterSpec ecCurveSpec = ECNamedCurveTable.getParameterSpec("prime239v1");
+		EllipticCurve ellipticCurve = EC5Util.convertCurve(ecCurveSpec.getCurve(), ecCurveSpec.getSeed()); 
+		ECParameterSpec specParams = EC5Util.convertSpec(ellipticCurve, ecCurveSpec); 
 		
-		EllipticCurve curve = new EllipticCurve(
-		            new ECFieldFp(new BigInteger("883423532389192164791648750360308885314476597252960362792450860609699839")), // q
-		            new BigInteger("7fffffffffffffffffffffff7fffffffffff8000000000007ffffffffffc", 16), // a             
-		            new BigInteger("6b016c3bdcf18941d0d654921475ca71a9db2fb27d1d37796185c2942c0a", 16)); // b
-
-		ECParameterSpec ecSpec = new ECParameterSpec(
-		            curve,
-		            ECPointUtil.decodePoint(curve, Hex.decode("020ffa963cdca8816ccc33b8642bedf905c3d358573d3f27fbbd3b3cb9aaaf")), // G
-		            new BigInteger("883423532389192164791648750360308884807550341691627752275345424702807307"), // n
-		            1); // h
-
 		ECPrivateKeySpec priKey = new ECPrivateKeySpec(
-	            new BigInteger("876300101507107567501066130761671078357010671067781776716671676178726717"), // d
-	            ecSpec);
-		
+                new BigInteger("876300101507107567501066130761671078357010671067781776716671676178726717"), // d
+                specParams);
+
 		ECPublicKeySpec pubKey = new ECPublicKeySpec(
-	            ECPointUtil.decodePoint(curve, Hex.decode("025b6dc53bc61a2548ffb0f671472de6c9521a9d2d2534e65abfcbd5fe0c70")), // Q
-	            ecSpec);
+                     ECPointUtil.decodePoint(
+                    		 ellipticCurve,
+                              Hex.decode("025b6dc53bc61a2548ffb0f671472de6c9521a9d2d2534e65abfcbd5fe0c70")), // Q
+                 specParams);
 		
 		final KeyFactory kf = KeyFactory.getInstance("ECDSA", "BC");
 		final PrivateKey privKey = kf.generatePrivate(priKey);
@@ -90,20 +72,28 @@ public class ExplicitPait {
     	bufin.close();
     	
     	byte[] realSig = dsa.sign();
+    	
      	
      	System.out.println("Signature is " + new BigInteger(1, realSig).toString(16));
      	FileOutputStream sigfos = new FileOutputStream("signature");
-     	sigfos.write(realSig);
+     	byte[] base64Val = base64.encodeToBase64(realSig);
+     	sigfos.write(base64Val);
+     	System.out.println("Signature in base 64 is " + new String(base64Val));
      	sigfos.close();
      	
      	System.out.println("Private key is " + new BigInteger(1, rawPrivKey).toString(16));
-//     	FileOutputStream privateKey = new FileOutputStream("privat_key");
-//     	privateKey.write(rawPrivKey);
-//     	privateKey.close();
+     	FileOutputStream privateKey = new FileOutputStream("privat_key");
+     	privateKey.write(rawPrivKey);
+     	privateKey.close();
      	
      	System.out.println("Public key is " + new BigInteger(1, rawPubKey).toString(16));
      	FileOutputStream publicKey = new FileOutputStream("public_key");
+     	
+     	byte[] EncPubKey = base64.encodeToBase64(rawPubKey);
      	publicKey.write(rawPubKey);
+     	System.out.println("Public Key in base 64 is " + new String(EncPubKey));
+     	
+//     	publicKey.write(rawPubKey);
      	publicKey.close();
 	}
 }
