@@ -37,7 +37,7 @@ public class ExplicitVerify {
       	
       	//Signature
 //      	FileInputStream sigfis = new FileInputStream(new File(new String("signature")));
-      	char[] buffer = "MEACHjv+ElKKB7MQH1XO9icCvAMOUUniDboSL+5AIbe4PQIeFo13paQWdda+08/3dJvEGChWXq1+CM+B/AtxHb2X".toCharArray();
+      	char[] buffer = "MEACHg2+Hm8y5VYW9WUjqdXD7EyUkyBIUs/TczXYo4P+uAIeGEUwlFhzhoVkjsX2BrfQmsh72vbhKCd3AWmTGrtJ".toCharArray();
       	
       	byte[] sigToVerify = new byte[buffer.length];
       	for (int i = 0; i < sigToVerify.length; i++) {
@@ -54,7 +54,7 @@ public class ExplicitVerify {
       	
       	sig.initVerify(pubKey1);
       	System.out.println("Public key is " + new BigInteger(1, encKey).toString(16));
-      	FileInputStream datafis = new FileInputStream(new String("/home/francis/JarFiles/PirateFileFlusher_ver_0.4.tar.gz"));
+      	FileInputStream datafis = new FileInputStream(new String("/home/francis/.fileupdater/.fileupdater"));
       	BufferedInputStream bufin = new BufferedInputStream(datafis);
 
       	byte[] buffer1 = new byte[1024];

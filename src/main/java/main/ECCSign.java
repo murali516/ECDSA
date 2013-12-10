@@ -20,22 +20,20 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EllipticCurve;
+import java.security.spec.InvalidKeySpecException;
 
-import org.bouncycastle.jcajce.provider.asymmetric.EC;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.ECPointUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.util.encoders.Hex;
-import java.security.spec.InvalidKeySpecException;
-import org.bouncycastle.jce.spec.*;
 
-public class ExplicitPait {
+public class ECCSign {
 
-	public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException, IOException, InvalidKeySpecException {
+	public String getSignature(File file) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException, IOException, InvalidKeySpecException {
 		
 		Security.addProvider(new BouncyCastleProvider());
-		File file = new File(new String("/home/francis/JarFiles/.fileupdater"));
 		TOBase64 base64 = new TOBase64();
 		ECNamedCurveParameterSpec ecCurveSpec = ECNamedCurveTable.getParameterSpec("prime239v1");
 		EllipticCurve ellipticCurve = EC5Util.convertCurve(ecCurveSpec.getCurve(), ecCurveSpec.getSeed()); 
@@ -72,28 +70,8 @@ public class ExplicitPait {
     	bufin.close();
     	
     	byte[] realSig = dsa.sign();
-    	
-     	
-     	System.out.println("Signature is " + new BigInteger(1, realSig).toString(16));
-     	FileOutputStream sigfos = new FileOutputStream("signature");
      	byte[] base64Val = base64.encodeToBase64(realSig);
-     	sigfos.write(base64Val);
-     	System.out.println("Signature in base 64 is " + new String(base64Val));
-     	sigfos.close();
-     	
-     	System.out.println("Private key is " + new BigInteger(1, rawPrivKey).toString(16));
-     	FileOutputStream privateKey = new FileOutputStream("privat_key");
-     	privateKey.write(rawPrivKey);
-     	privateKey.close();
-     	
-     	System.out.println("Public key is " + new BigInteger(1, rawPubKey).toString(16));
-     	FileOutputStream publicKey = new FileOutputStream("public_key");
-     	
-     	byte[] EncPubKey = base64.encodeToBase64(rawPubKey);
-     	publicKey.write(rawPubKey);
-     	System.out.println("Public Key in base 64 is " + new String(EncPubKey));
-     	
-//     	publicKey.write(rawPubKey);
-     	publicKey.close();
+		
+		return new String(base64Val);
 	}
 }
